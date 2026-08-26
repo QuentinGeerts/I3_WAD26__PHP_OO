@@ -30,5 +30,5 @@ Question de vocabulaire : quelle est la différence entre une propriété et une
 Résultat attendu à l'écran :
 ```txt
 Cet ordinateur est un Dell.
-Cet ordinateur est un Asus
+Cet ordinateur est un Asus.
 ```
