@@ -33,7 +33,7 @@ Cet ordinateur est un Dell.
 Cet ordinateur est un Asus.
 ```
 
-## Exercice 4 — La classe Rectangle
+## Exercice 3 — La classe Rectangle
 
 Créez une classe `Rectangle` avec deux propriétés : `$largeur` et `$hauteur` (des nombres décimaux).
 
@@ -49,5 +49,7 @@ Testez avec deux rectangles :
 
 Résultat attendu :
 
+```
 Rectangle 5x3 : surface = 15, périmètre = 16. Ce n'est pas un carré.
 Rectangle 4x4 : surface = 16, périmètre = 16. C'est un carré !
+```
