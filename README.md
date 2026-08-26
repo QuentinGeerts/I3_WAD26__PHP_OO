@@ -5,16 +5,15 @@
 
 1. Introduction: Programmation fonctionnelle vs orienté objet
 2. Les classes
-3. Les propriétés
-4. Les méthodes
-5. Le constructeur 
-6. L'encapsulation
-7. L'héritage
+3. Les propriétés / Les méthodes
+4. Le constructeur 
+5. L'encapsulation
+6. L'héritage
 
 Exercice récapitulatif: Panier et produits
 
 [BONUS]
 
-8. Les classes abstraites
-9. Le mot-clef "static"
-10. Les interfaces
+7. Les classes abstraites
+8. Le mot-clef "static"
+9. Les interfaces
