@@ -16,3 +16,19 @@ On souhaite modéliser un téléphone portable. Proposez :
 2 méthodes (des actions)
 
 Question de vocabulaire : quelle est la différence entre une propriété et une méthode ?
+
+
+## Exercice 02 - La classe Ordinateur
+
+1. Créez une classe `Ordinateur` contenant une seule propriété publique : `$marque` (une chaîne de caractères).
+2. Ajoutez-lui une méthode `presenter()` qui retourne la phrase : "Cet ordinateur est un <marque>."
+3. Dans le programme principal, créez deux objets :
+- le premier de marque "Dell"
+- le second de marque "Asus"
+4. Affichez la présentation de chacun.
+
+Résultat attendu à l'écran :
+```txt
+Cet ordinateur est un Dell.
+Cet ordinateur est un Asus
+```
