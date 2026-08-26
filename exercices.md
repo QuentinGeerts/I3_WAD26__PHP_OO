@@ -109,7 +109,7 @@ Créez une classe `CompteBancaire` complète :
 **Scénario de test à réaliser** : déposer 500 €, retirer 200 €, essayer de retirer 1000 €, essayer de déposer -10 €, puis afficher le relevé.
 
 
-## Exercice 7 — Véhicules
+## Exercice 6 — Véhicules (Héritage)
 
 1. Créez une classe `Vehicule` avec :
   - les propriétés `$marque` et `$vitesseMax`
