@@ -47,7 +47,7 @@ Ajoutez les méthodes suivantes :
 - `surface()` : retourne largeur × hauteur
 - `perimetre()` : retourne (largeur + hauteur) × 2
 - `estCarre()` : retourne true si largeur et hauteur sont égales
-- ``decrire()`` : retourne une phrase utilisant les trois méthodes ci-dessus
+- `decrire()` : retourne une phrase utilisant les trois méthodes ci-dessus
 
 Testez avec deux rectangles :
 - un de 5 × 3
