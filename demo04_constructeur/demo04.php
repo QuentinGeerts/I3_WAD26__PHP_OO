@@ -1,5 +1,6 @@
 <?php
 
+// Création d'un objet part un constructeur
 class Chaussette {
   public int $pointure_min;
   public int $pointure_max;
@@ -25,13 +26,27 @@ class Chaussette {
 
 }
 
+// Idem mais version 8
+
+class Tshirt {
+
+  public function __construct(public string $taille = "S", public string $couleur = "noir") { }
+
+}
+
 $c1 = new Chaussette(41, 47, "blue", "coton", true);
 // $c1->pointure_min = 41;
 // $c1->pointure_max = 47;
 // $c1->couleur = "bleu";
 // $c1->matiere = "coton";
 $c2 = new Chaussette(35, 40, "violet", "synthetique", false);
-$c3 = new Chaussette(25, 30, "rouge", "coton")
+$c3 = new Chaussette(25, 30, "rouge", "coton");
+
+$t1 = new Tshirt("XL", "noir");
+$t2 = new Tshirt("L", "violet");
+$t3 = new Tshirt();
+$t4 = new Tshirt("L");
+$t5 = new Tshirt(couleur: "rose");
 
 ?>
 
