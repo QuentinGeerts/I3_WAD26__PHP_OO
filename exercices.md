@@ -1,7 +1,8 @@
 # Exercices : PHP Orienté Objet
 
+## 1.  Introduction
 
-## Exercice 01 - Analyser avant de coder (Introduction)
+### Exercice 01 - Analyser avant de coder
 
 Aucun code à écrire pour cet exercice, uniquement de la réflexion écrite.
 
@@ -18,7 +19,9 @@ On souhaite modéliser un téléphone portable. Proposez :
 Question de vocabulaire : quelle est la différence entre une propriété et une méthode ?
 
 
-## Exercice 02 - La classe Ordinateur (Classes)
+## 2.  Classes
+
+### Exercice 02 - La classe Ordinateur
 
 1. Créez une classe `Ordinateur` contenant une seule propriété publique : `$marque` (une chaîne de caractères).
 2. Ajoutez-lui une méthode `presenter()` qui retourne la phrase : "Cet ordinateur est un <marque>."
@@ -33,7 +36,10 @@ Cet ordinateur est un Dell.
 Cet ordinateur est un Asus.
 ```
 
-## Exercice 3.1 - La classe Rectangle (Attributs / Méthodes)
+
+## 3.  Attributs / Méthodes
+
+### Exercice 3.1 - La classe Rectangle
 
 Créez une classe `Rectangle` avec deux propriétés : `$largeur` et `$hauteur` (des nombres décimaux).
 
@@ -54,7 +60,7 @@ Rectangle 5x3 : surface = 15, périmètre = 16. Ce n'est pas un carré.
 Rectangle 4x4 : surface = 16, périmètre = 16. C'est un carré !
 ```
 
-## Exercice 3.2 - Classe Produit avec prix TTC
+### Exercice 3.2 - Classe Produit avec prix TTC
 
 Crée une classe `Produit` avec les propriétés nom et prix (HT, hors taxes).
 
@@ -62,9 +68,12 @@ Ajoute une méthode `prixTTC(float $tauxTva)` qui retourne le prix TTC (ex. prix
 
 Crée un tableau de plusieurs Produit, affiche pour chacun son prix HT et son prix TTC, puis calcule et affiche le total TTC du panier.
 
-## Exercice 4 - La classe Livre (Constructeur)
 
-### Partie 1 : La base
+## 4.  Constructeur
+
+### Exercice 4 - La classe Livre
+
+#### Partie 1 : La base
 
 Créez une classe Livre avec quatre propriétés publiques :
 - `$titre` (chaîne)
@@ -83,7 +92,7 @@ Affichez pour chaque livre une ligne du type :
 
 Soldes ! Appliquez une réduction de 50 % sur le prix du second livre, puis réaffichez sa ligne.
 
-### Partie 2 : Constructeur
+#### Partie 2 : Constructeur
 
 Ajoutez un constructeur qui reçoit `$titre`, `$auteur`, `$nbPages` et `$prix`. 
 Le paramètre `$prix` aura la valeur par défaut 0.
@@ -97,7 +106,9 @@ Ajoutez une méthode `appliquerReduction(float $pourcentage)` qui diminue le pri
 Créez les deux mêmes livres qu'à l'exercice 3, mais en une seule ligne chacun, puis appliquez 50 % de réduction sur « 1984 ».
 
 
-## Exercice 5 - Le compte bancaire sécurisé (Encapsulation)
+## 5.  Encapsulation
+
+### Exercice 5 - Le compte bancaire sécurisé
 
 Créez une classe `CompteBancaire` complète :
 
@@ -116,7 +127,9 @@ Créez une classe `CompteBancaire` complète :
 **Scénario de test à réaliser** : déposer 500 €, retirer 200 €, essayer de retirer 1000 €, essayer de déposer -10 €, puis afficher le relevé.
 
 
-## Exercice 6 — Véhicules (Héritage)
+## 6.  Héritage
+
+### Exercice 6 — Véhicules
 
 1. Créez une classe `Vehicule` avec :
   - les propriétés `$marque` et `$vitesseMax`
