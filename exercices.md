@@ -33,7 +33,7 @@ Cet ordinateur est un Dell.
 Cet ordinateur est un Asus.
 ```
 
-## Exercice 3 - La classe Rectangle (Attributs / Méthodes)
+## Exercice 3.1 - La classe Rectangle (Attributs / Méthodes)
 
 Créez une classe `Rectangle` avec deux propriétés : `$largeur` et `$hauteur` (des nombres décimaux).
 
@@ -54,6 +54,13 @@ Rectangle 5x3 : surface = 15, périmètre = 16. Ce n'est pas un carré.
 Rectangle 4x4 : surface = 16, périmètre = 16. C'est un carré !
 ```
 
+## Exercice 3.2 - Classe Produit avec prix TTC
+
+Crée une classe `Produit` avec les propriétés nom et prix (HT, hors taxes).
+
+Ajoute une méthode `prixTTC(float $tauxTva)` qui retourne le prix TTC (ex. prixTTC(0.20) pour une TVA à 20%).
+
+Crée un tableau de plusieurs Produit, affiche pour chacun son prix HT et son prix TTC, puis calcule et affiche le total TTC du panier.
 
 ## Exercice 4 - La classe Livre (Constructeur)
 
