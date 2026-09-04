@@ -144,3 +144,37 @@ Créez une classe `CompteBancaire` complète :
 3. Créez une classe Velo qui hérite de `Vehicule` et redéfinit `demarrer()` pour retourner "Un coup de pédale et c'est parti !".
 
 **Testez** : créez une voiture Renault (180 km/h, 5 portes) et un vélo Btwin (30 km/h). Pour chacun, appelez `decrire()` puis `demarrer()`.
+
+
+## 7.  Static
+
+### Exercice 7 - Compteur d'articles et TVA
+
+1. Crée une classe `Article` avec deux propriétés d'instance : `string $nom` et `float $prixHT` (constructeur).
+2. Ajoute une constante de classe `public const TVA = 0.21`.
+3. Ajoute une propriété `private static int $nombre = 0`, incrémentée à chaque création d'article.
+4. Ajoute une méthode d'instance `prixTTC(): float` qui utilise `self::TVA`.
+5. Ajoute une méthode statique `getNombre(): int` qui retourne le nombre d'articles créés.
+6. Crée 3 articles, affiche le prix TTC de chacun, puis le nombre total d'articles.
+
+## 8.  Abstraction et interface
+
+### Exercice 8 - Classe abstraite : bulletins de paie
+La classe abstraite `Employe` est déjà fournie :
+1. Crée une classe `EmployeFixe extends Employe` : son `salaireMensuel()` retourne simplement le salaire de base.
+2. Crée une classe `Commercial extends Employe` qui reçoit en plus un chiffre d'affaires dans son constructeur (pense à `parent::__construct()`). Son `salaireMensuel()` retourne le salaire de base + 5 % du chiffre d'affaires (déclare ce taux dans une constante de classe).
+3. Place deux employés fixes et un commercial dans un tableau, puis affiche le bulletin de chacun avec `bulletin()` — méthode que tu n'as pas eu à réécrire.
+4. Décommente la dernière ligne du fichier et observe l'erreur : une classe abstraite ne s'instancie pas.
+
+> À retenir : on choisit une classe **abstraite** parce que la classe mère apporte des propriétés (`$nom`, `$salaireBase`), un constructeur et du code déjà écrit (`bulletin()`) à toute la famille.
+
+## 9.  Interfaces
+
+## Exercice 9 - Interface : export CSV
+L'interface `Exportable`, les classes `Client` et `Facture` et les fonctions d'export sont déjà fournies :
+1. Fais implémenter `Exportable` par `Client`, et écris sa méthode `enCsv()` au format `nom;email`.
+2. Fais de même pour `Facture`, au format `numero;montant`.
+3. Crée un tableau mélangeant des clients **et** des factures, puis passe-le à `exporterTout()`. Constate qu'une seule fonction traite les deux types.
+4. **Bonus** : ajoute une interface `Affichable` avec une méthode `enHtml(): string`, et fais en sorte que `Client` implémente les deux (`implements Exportable, Affichable`).
+
+> À retenir : on choisit une **interface** parce que `Client` et `Facture` n'ont aucun lien de parenté — et parce qu'une classe peut implémenter plusieurs interfaces, là où elle ne peut hériter que d'une seule classe.
