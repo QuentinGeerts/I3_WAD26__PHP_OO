@@ -59,19 +59,16 @@ class Avion extends Vehicule implements Roulant, Volant
     return "L'avion démarre.";
   }
 
-  #[Override]
   public function rouler(float $distance): string
   {
     return "L'avion roule sur $distance km.";
   }
 
-  #[Override]
   public function atterir(): string
   {
     return "L'avion atterit sans se crasher";
   }
 
-  #[Override]
   public function decoller(): string
   {
     return "L'avion décolle sans turbulence";

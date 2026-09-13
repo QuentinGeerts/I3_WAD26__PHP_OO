@@ -9,7 +9,6 @@ class Livre extends ProduitPhysique
 
   // Constructeurs
 
-  #[Override]
   public function __construct(
     string $nom,
     float $prixHT,
@@ -29,19 +28,16 @@ class Livre extends ProduitPhysique
 
   // Redéfinition de méthodes
 
-  #[Override]
   public function getTauxTva(): float
   {
     return 0.06;
   }
 
-  #[Override]
   public function getDescription(): string
   {
     return parent::getDescription() . " - auteur: {$this->auteur}";
   }
 
-  #[Override]
   public function getDelaiJours(): int
   {
     return 2;

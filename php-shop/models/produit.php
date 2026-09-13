@@ -38,13 +38,11 @@ abstract class Produit implements Facturable
 
   // Méthodes concrètes (implémentation des méthodes de l'interface)
 
-  #[Override]
   public function getPrixTTC(): float
   {
     return $this->prixHT * (1 + $this->getTauxTva()) * $this->quantite;
   }
 
-  #[Override]
   public function getLigneFacture(): string
   {
     return "{$this->quantite} x {$this->nom} - {$this->getPrixTTC()} € TTC";

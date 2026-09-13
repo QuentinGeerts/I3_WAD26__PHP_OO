@@ -7,7 +7,6 @@ class ProduitNumerique extends Produit
   // Attributs
 
   // Constructeurs
-  #[Override]
   public function __construct(
     string $nom,
     float $prixHT,
@@ -26,13 +25,11 @@ class ProduitNumerique extends Produit
 
   // Redéfinition de méthodes
 
-  #[Override]
   public function getTauxTva(): float
   {
     return 0.21;
   }
 
-  #[Override]
   public function getDescription(): string
   {
     return "Produit numérique : {$this->getNom()} ({$this->tailleMo} Mo)";
