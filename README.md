@@ -12,8 +12,13 @@ Ce README reprend, sous forme de synthèse pédagogique, la théorie de la progr
 6. [Le constructeur](#6-le-constructeur)
 7. [L'encapsulation](#7-lencapsulation)
 8. [L'héritage et le polymorphisme](#8-lhéritage-et-le-polymorphisme)
-9. [Vocabulaire à retenir](#9-vocabulaire-à-retenir)
-10. [Feuille de route du cours](#10-feuille-de-route-du-cours)
+9. [Le mot-clé `static`](#9-le-mot-clé-static)
+10. [Les classes abstraites](#10-les-classes-abstraites)
+11. [Les interfaces](#11-les-interfaces)
+12. [Classe abstraite ou interface ?](#12-classe-abstraite-ou-interface-)
+13. [Organiser son code en fichiers](#13-organiser-son-code-en-fichiers)
+14. [Vocabulaire à retenir](#14-vocabulaire-à-retenir)
+15. [Feuille de route du cours](#15-feuille-de-route-du-cours)
 
 ---
 
@@ -489,7 +494,384 @@ if ($a1 instanceof Poisson) {
 
 ---
 
-## 9. Vocabulaire à retenir
+## 9. Le mot-clé `static`
+
+Jusqu'ici, chaque membre appartenait à **un objet** : deux `Article` ont chacun leur `$nom` et leur `$prixHT`. Le mot-clé `static` change ce rattachement : le membre appartient à la **classe elle-même**, pas à ses instances.
+
+| | Membre **non** `static` | Membre `static` |
+|---|---|---|
+| Attaché à… | une instance (créée avec `new`) | la classe (le modèle) |
+| Combien d'exemplaires ? | un par objet | **un seul**, partagé par tous |
+| Accès | `$objet->membre` | `Classe::membre` |
+| `$this` disponible ? | oui | non (il n'y a aucun objet) |
+
+### 9.1. L'opérateur de résolution de portée `::`
+
+`->` s'adresse à une instance, `::` s'adresse à une classe.
+
+```php
+$article->prixTTC();      // méthode d'instance : il faut un objet
+Article::getNombre();     // méthode de classe : aucun objet nécessaire
+```
+
+- `self::` → la classe courante, **depuis l'intérieur** de celle-ci ;
+- `parent::` → la classe mère (déjà vu en 8.2) ;
+- `NomClasse::` → une classe précise, depuis l'extérieur.
+
+### 9.2. Les constantes de classe
+
+Une **constante de classe** est une valeur figée, commune à toute la classe : un taux de TVA, une précision d'arrondi, des frais fixes…
+
+```php
+class Article {
+  public const TVA = 0.21;   // pas de $, pas de type, valeur non modifiable
+
+  public function prixTTC(): float {
+    return $this->prixHT * (1 + self::TVA);
+  }
+}
+
+echo Article::TVA; // 0.21 — depuis l'extérieur
+```
+
+- convention de nommage : `UPPER_SNAKE_CASE` ;
+- le nom ne prend **pas** de `$` ;
+- une constante est implicitement statique : elle s'utilise avec `::`, jamais avec `->`.
+
+### 9.3. Les propriétés statiques
+
+Une propriété `static` vit dans la classe : toutes les instances lisent et écrivent **la même** case mémoire. C'est l'outil idéal pour un compteur ou un historique partagé.
+
+```php
+class Article {
+  private static int $nombre = 0;
+
+  public function __construct(public string $nom, public float $prixHT) {
+    self::$nombre++;   // note le $ : self::$nombre
+  }
+
+  public static function getNombre(): int {
+    return self::$nombre;
+  }
+}
+
+new Article("Sandwich", 4.5);
+new Article("Ordinateur portable", 699);
+
+echo Article::getNombre(); // 2
+```
+
+⚠️ Attention à la syntaxe : `self::$nombre` pour une **propriété** statique (avec `$`), `self::TVA` pour une **constante** (sans `$`).
+
+### 9.4. Les méthodes statiques
+
+Une méthode `static` s'appelle directement sur la classe. Elle sert aux **fonctions utilitaires**, qui ne dépendent d'aucun objet particulier.
+
+```php
+class Calculatrice {
+  public const PRECISION = 2;
+  public static int $nbOperations = 0;
+
+  public static function addition(float $a, float $b): float {
+    return self::enregistrer("$a + $b", $a + $b);
+  }
+
+  private static function enregistrer(string $operation, float $resultat): float {
+    self::$nbOperations++;
+    return round($resultat, self::PRECISION);
+  }
+}
+
+Calculatrice::addition(5, 3); // aucun new nécessaire
+```
+
+- une méthode statique **n'a pas** de `$this` : elle ne peut donc pas lire les propriétés d'instance ;
+- elle accède aux autres membres statiques avec `self::` ;
+- PHP tolère `$objet->addition(5, 3)`, mais c'est trompeur : l'appel reste attaché à la classe, pas à l'objet.
+
+### 9.5. `self` ou `static` ?
+
+Les deux désignent « la classe », mais pas la même :
+
+- `self` → la classe dans laquelle le code est **écrit** ;
+- `static` → la classe avec laquelle le code est **exécuté** (on parle de *late static binding*, liaison statique tardive).
+
+La différence n'apparaît qu'en cas d'héritage :
+
+```php
+class Calculatrice {
+  public const PRECISION = 2;
+
+  public static function precisionAvecSelf(): int   { return self::PRECISION; }
+  public static function precisionAvecStatic(): int { return static::PRECISION; }
+}
+
+class CalculatriceScientifique extends Calculatrice {
+  public const PRECISION = 6; // redéfinition de la constante
+}
+
+echo CalculatriceScientifique::precisionAvecSelf();   // 2 → celle de Calculatrice
+echo CalculatriceScientifique::precisionAvecStatic(); // 6 → celle de la classe appelée
+```
+
+📄 Voir [demo07_static/demo07.php](demo07_static/demo07.php) et l'exercice 7 : [demo07_static/exercices/exo07.php](demo07_static/exercices/exo07.php)
+
+---
+
+## 10. Les classes abstraites
+
+### 10.1. Le problème : une classe mère trop générale
+
+En 8.1, `Animal` était une classe normale : rien n'empêchait d'écrire `new Animal("truc")` et d'obtenir un animal qui « fait un cri générique ». Or « un véhicule » ou « un produit » tout court n'existe pas : seuls un `Scooter`, un `Avion`, un `Livre` existent vraiment. La classe mère n'est là que pour **factoriser** ce qui est commun.
+
+### 10.2. Déclarer une classe abstraite : `abstract class`
+
+Le mot-clé `abstract` interdit l'instanciation de la classe : elle ne peut plus servir que de base à d'autres classes.
+
+```php
+abstract class Vehicule {
+  public function __construct(public string $marque) { }
+}
+
+$v = new Vehicule("Vespa"); // Fatal error : Cannot instantiate abstract class Vehicule
+$s = new Scooter("Vespa", "rouge"); // OK : la fille, elle, est concrète
+```
+
+### 10.3. Déclarer une méthode abstraite
+
+Une méthode **abstraite** annonce une signature **sans corps** : la mère impose le comportement sans savoir comment il sera réalisé.
+
+```php
+abstract class Vehicule {
+  public abstract function demarrer(); // pas d'accolades, juste un point-virgule
+}
+```
+
+- une méthode abstraite ne peut exister que dans une classe abstraite ;
+- elle ne peut pas être `private` : la fille ne pourrait pas la voir pour l'implémenter.
+
+### 10.4. Implémenter les méthodes abstraites dans les filles
+
+Chaque classe fille concrète **doit** fournir un corps à toutes les méthodes abstraites héritées, avec la même signature.
+
+```php
+class Scooter extends Vehicule {
+  public function demarrer() {
+    return "Le scooter démarre.";
+  }
+}
+
+class Avion extends Vehicule {
+  public function demarrer() {
+    return "L'avion démarre.";
+  }
+}
+```
+
+Si une fille en oublie une, PHP refuse de charger la classe — à moins qu'elle ne soit elle-même déclarée `abstract` et laisse le travail à la génération suivante.
+
+### 10.5. Mélanger méthodes abstraites et méthodes concrètes
+
+C'est tout l'intérêt de la classe abstraite : elle apporte des propriétés, un constructeur et du **code déjà écrit** à toute la famille, et ne laisse abstrait que ce qui varie d'une fille à l'autre.
+
+```php
+abstract class Vehicule {
+  public function __construct(public string $marque) { }
+
+  public abstract function demarrer();       // varie → à écrire dans chaque fille
+
+  public function decrire(): string {        // commun → écrit une seule fois
+    return "Marque: {$this->marque}";
+  }
+}
+```
+
+Une fille garde le droit de redéfinir une méthode concrète (override, voir 8.2) ; elle n'a simplement pas l'**obligation** de le faire.
+
+### 10.6. Le constructeur d'une classe abstraite
+
+Une classe abstraite peut avoir un constructeur : il ne sera jamais appelé par `new Vehicule(...)`, mais par les filles via `parent::__construct()`.
+
+```php
+class Scooter extends Vehicule {
+  public function __construct(string $marque, public string $couleur) {
+    parent::__construct($marque); // la mère initialise $marque
+  }
+
+  public function demarrer() {
+    return "Le scooter démarre.";
+  }
+}
+```
+
+### 10.7. Polymorphisme et classe abstraite
+
+Le type abstrait reste utilisable comme **type commun** : on range les filles dans un même tableau, on les type-hint avec la mère, et chacune répond à sa façon.
+
+```php
+$vehicules = [
+  new Scooter("Vespa", "rouge"),
+  new Avion("Boeing", 25),
+  new Scooter("Vespa", "bleu"),
+];
+
+foreach ($vehicules as $v) {
+  echo $v->decrire();   // code de la mère
+  echo $v->demarrer();  // code de la fille réellement instanciée
+}
+```
+
+> Une méthode concrète de la mère peut même appeler une méthode abstraite : `getPrixTTC()` utilise `$this->getTauxTva()` alors que ce taux n'existe nulle part dans la mère. À l'exécution, `$this` est forcément une fille concrète, qui l'a donc implémentée.
+
+📄 Voir [demo08_abstract_interface/demo08.php](demo08_abstract_interface/demo08.php) et l'exercice 8 (bulletins de paie) dans [exercices.md](exercices.md)
+
+---
+
+## 11. Les interfaces
+
+### 11.1. Le problème : partager une capacité sans parenté
+
+Un `Avion` roule **et** vole, un `Scooter` roule seulement. Ces capacités ne suivent pas l'arbre d'héritage, et une classe ne peut hériter que d'une seule mère (voir 8.4). Il faut donc un autre outil : le **contrat**.
+
+### 11.2. Déclarer une interface
+
+Une **interface** est une liste de méthodes qu'une classe s'engage à fournir. Elle ne contient **aucun code** ni aucune propriété : uniquement des signatures.
+
+```php
+interface Volant {
+  function decoller(): string;
+  function atterir(): string;
+}
+
+interface Roulant {
+  function rouler(float $distance): string;
+}
+```
+
+- toutes les méthodes d'une interface sont implicitement `public` ;
+- une interface ne s'instancie pas ;
+- on la nomme souvent d'après une capacité : `Volant`, `Roulant`, `Facturable`, `Livrable`, `Exportable`.
+
+### 11.3. Signer le contrat : `implements`
+
+```php
+class Scooter extends Vehicule implements Roulant {
+  public function demarrer() {
+    return "Le scooter démarre.";
+  }
+
+  public function rouler(float $distance): string { // obligatoire
+    return "Le scooter roule sur $distance km.";
+  }
+}
+```
+
+Si une méthode du contrat manque, PHP refuse de charger la classe : *Fatal error: Class Scooter contains 1 abstract method…*. L'interface ne dit **pas** comment faire : chaque classe fournit sa propre implémentation.
+
+### 11.4. Implémenter plusieurs interfaces
+
+C'est **la** réponse à l'absence d'héritage multiple : une classe n'hérite que d'**une** classe, mais implémente **autant d'interfaces** qu'elle veut, séparées par des virgules.
+
+```php
+class Avion extends Vehicule implements Roulant, Volant {
+  public function demarrer()                      { return "L'avion démarre."; }
+  public function rouler(float $distance): string { return "L'avion roule sur $distance km."; }
+  public function decoller(): string              { return "L'avion décolle sans turbulence"; }
+  public function atterir(): string               { return "L'avion atterit sans se crasher"; }
+}
+```
+
+### 11.5. Combiner héritage et interfaces
+
+`extends` vient toujours **avant** `implements`. Les deux mécanismes se cumulent sans se gêner : on hérite du code commun, on signe les capacités.
+
+```php
+abstract class Produit implements Facturable { /* ... */ }
+class ProduitPhysique extends Produit implements Livrable { /* ... */ }
+class Livre extends ProduitPhysique { /* ... */ }          // hérite des deux contrats
+class ProduitNumerique extends Produit { /* ... */ }        // facturable, mais pas livrable
+```
+
+### 11.6. `instanceof` et type-hint sur une interface
+
+`instanceof` fonctionne avec une interface exactement comme avec une classe. On ne demande plus « de quel type es-tu ? » mais « **sais-tu faire** ceci ? ».
+
+```php
+$vehicules = [new Scooter("Vespa", "rouge"), new Avion("Boeing", 25)];
+
+foreach ($vehicules as $v) {
+  echo $v->demarrer();
+
+  if ($v instanceof Roulant) echo $v->rouler(50);
+  if ($v instanceof Volant)  echo $v->decoller();
+}
+```
+
+Le même tableau contient des objets de familles différentes, et chacun n'est sollicité que sur ce qu'il sait réellement faire.
+
+Une interface s'utilise aussi comme **type** dans une signature :
+
+```php
+public function facturer(Facturable $element): string {
+  return $element->getLigneFacture(); // peu importe la classe concrète
+}
+```
+
+C'est du polymorphisme (8.5) fondé sur la **capacité** plutôt que sur la parenté : deux classes sans aucun lien peuvent être traitées par le même code.
+
+📄 Voir [demo08_abstract_interface/demo08.php](demo08_abstract_interface/demo08.php) et l'exercice 9 (export CSV) dans [exercices.md](exercices.md)
+
+---
+
+## 12. Classe abstraite ou interface ?
+
+Les deux imposent des méthodes aux classes filles ; le choix dépend de ce que l'on veut **partager**.
+
+| | Classe abstraite | Interface |
+|---|---|---|
+| Mot-clé de liaison | `extends` | `implements` |
+| Combien à la fois ? | **une seule** | autant que nécessaire |
+| Propriétés | oui | non |
+| Constructeur | oui | non |
+| Code déjà écrit | oui (méthodes concrètes) | non (signatures uniquement) |
+| Visibilités | toutes | `public` uniquement |
+| Relation exprimée | « **est un** » (parenté) | « **sait faire** » (capacité) |
+
+- On choisit une **classe abstraite** quand les filles appartiennent à la même famille et partagent un état et du code : `ProduitPhysique` et `ProduitNumerique` sont deux `Produit`.
+- On choisit une **interface** quand des classes sans lien de parenté doivent offrir la même capacité : un `Client` et une `Facture` n'ont rien en commun, mais tous deux sont `Exportable`.
+- Les deux se combinent très bien : `abstract class Produit implements Facturable`, puis `class ProduitPhysique extends Produit implements Livrable`.
+
+---
+
+## 13. Organiser son code en fichiers
+
+Dès qu'un projet dépasse quelques classes, on applique la règle **un fichier par classe / par interface**, rangés par rôle (`models/`, `interfaces/`), avec un seul point d'entrée (`index.php`).
+
+```php
+// models/produit.php
+require_once __DIR__ . '/../interfaces/facturable.php';
+
+abstract class Produit implements Facturable { /* ... */ }
+```
+
+```php
+// index.php
+require_once __DIR__ . '/models/produit-physique.php';
+require_once __DIR__ . '/models/livre.php';
+require_once __DIR__ . '/models/panier.php';
+
+$panier = new Panier();
+```
+
+- `require_once` inclut le fichier **une seule fois** : indispensable, car redéclarer une classe est une erreur fatale ;
+- `__DIR__` est le dossier du fichier **courant** : le chemin reste correct quel que soit le script appelé ;
+- chaque fichier inclut lui-même ce dont il dépend (un modèle inclut son interface, une fille inclut sa mère).
+
+📄 Voir le projet récapitulatif [php-shop/index.php](php-shop/index.php) et son énoncé [mini-projet.md](mini-projet.md)
+
+---
+
+## 14. Vocabulaire à retenir
 
 | Terme | Définition |
 |---|---|
@@ -514,11 +896,20 @@ if ($a1 instanceof Poisson) {
 | Redéfinition (override) | Réécrire dans la fille une méthode héritée de la mère |
 | `parent::` | Appeler la version parente d'une méthode / du constructeur |
 | Polymorphisme | Traiter des objets de sous-types différents via leur type commun |
-| `instanceof` | Tester si un objet est d'un type (classe) donné |
+| `instanceof` | Tester si un objet est d'un type (classe ou interface) donné |
+| `static` (membre) | Membre attaché à la classe et non à une instance, partagé par tous les objets |
+| `::` | Opérateur de résolution de portée : accès à un membre de classe (`Classe::`, `self::`, `parent::`) |
+| Constante de classe | Valeur figée déclarée avec `const`, accessible via `::`, sans `$` |
+| `self` / `static` (mot-clé) | La classe où le code est *écrit* / la classe avec laquelle il est *exécuté* (late static binding) |
+| Classe abstraite | Classe non instanciable, destinée à être héritée (`abstract class`) |
+| Méthode abstraite | Signature sans corps, que chaque classe fille concrète doit implémenter |
+| Interface | Contrat listant des méthodes publiques, sans code ni propriété |
+| `implements` | Mot-clé par lequel une classe signe une ou plusieurs interfaces |
+| `require_once` / `__DIR__` | Inclure un fichier une seule fois / dossier du fichier courant |
 
 ---
 
-## 10. Feuille de route du cours
+## 15. Feuille de route du cours
 
 - [x] Programmation fonctionnelle vs orientée objet
 - [x] Les classes et les objets
@@ -526,10 +917,10 @@ if ($a1 instanceof Poisson) {
 - [x] Le constructeur (`__construct`, promotion de propriétés, arguments nommés)
 - [x] L'encapsulation (`private`, getters / setters, exceptions)
 - [x] L'héritage et le polymorphisme (`extends`, `parent::`, `instanceof`)
-- [ ] Les interfaces (remplacer l'héritage multiple)
-- [ ] *(bonus)* Les classes abstraites, le mot-clé `static`
-
-Exercice récapitulatif à venir : **Panier et produits**.
+- [x] Le mot-clé `static` (constantes de classe, membres statiques, `self` / `static`)
+- [x] Les classes abstraites (`abstract`, méthodes abstraites)
+- [x] Les interfaces (`implements`, remplacer l'héritage multiple)
+- [x] Exercice récapitulatif : **PHPShop — panier et produits** ([mini-projet.md](mini-projet.md))
 
 ---
 
@@ -546,6 +937,14 @@ Exercice récapitulatif à venir : **Panier et produits**.
 │   └── exercices/                → Exercice 04 (classe Livre)
 ├── demo05_encapsulation/         → public/private/protected, getters/setters, exceptions
 ├── demo06_heritage_polymorphisme/ → extends, override, parent::, instanceof, polymorphisme
+├── demo07_static/                → const, propriétés/méthodes statiques, ::, self vs static
+│   └── exercices/                → Exercice 07 (compteur d'articles et TVA)
+├── demo08_abstract_interface/    → abstract class, méthodes abstraites, interfaces, implements
+├── php-shop/                     → Correction de l'exercice récapitulatif
+│   ├── interfaces/               → Facturable, Livrable
+│   ├── models/                   → Produit, ProduitPhysique, Livre, ProduitNumerique, Panier
+│   └── index.php                 → Scénario de test
 ├── exercices.md                  → Énoncés de tous les exercices
+├── mini-projet.md                → Énoncé de l'exercice récapitulatif (PHPShop)
 └── README.md                     → Ce document
 ```
